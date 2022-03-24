@@ -1,18 +1,23 @@
 // Write a program to remove trailing blanks and tabs from each line of input, and to delete entirely blank lines
 
 #include <stdio.h>
+#define MAXLINE 1000 /* maximum input line length */
 int getline(char line[], int maxline);
 void add(char to[], char from[]);
 
-char line[1000] = ""; /* current input line */
-char lines[1000] = ""; /* all lines saved here  */
-
 int main(){
+    char line[MAXLINE] = ""; /* current input line */
+    char lines[MAXLINE] = ""; /* all lines saved here  */
     int len; /* current line length */
-    // Have to initialize as empty strings to clear the allocatted memory of junk values
-    while ((len = getline(line, 1000)) > 0)
+    while ((len = getline(line, MAXLINE)) > 0)
     {
         add(lines, line);
+        int i = 0;
+        // Clean the array
+        while(i < MAXLINE){
+            line[i] = '\0';
+            i++;
+        }
     }
     /* Prints lines */
     printf("%s", lines);
@@ -22,19 +27,9 @@ int main(){
 int getline(char s[],int lim)
 {
     int c, i;
-    int nullChar = 0;
     for (i=0; i < lim - 1 && (c=getchar())!=EOF && c!='\n'; ++i)
     {
-        if (c == '\0'){
-            nullChar = 1;
-        }
-
-        if ((c == ' ' || c == '\t')){
-            s[i] = '\0';
-        }
-        else {
-            s[i] = c;
-        }
+        s[i] = c;
     }
     s[i] = '\0';
     return i;
@@ -65,12 +60,14 @@ void add(char to[], char from[])
         ++v;
     }
     // Appends the new line character by character with the offset
-    while ((from[i + p] != '\0') && (i < s) && (p < 1000)) 
+    while ((from[i + p] != '\0') && (i < s) && (p < MAXLINE)) 
     // p < 1000 is for edge case where p goes to 1000 and start reading wrong memory
     {
         to[i + v] = from[i + p];
         ++i;
     }
     // Add new line
-    to[i + v] = '\n';
+    if (i > 0){
+        to[i + v] = '\n';
+    }
 }

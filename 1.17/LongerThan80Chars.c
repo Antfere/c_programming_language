@@ -16,10 +16,16 @@ int main()
     {
         if (len > min) {
             add(longLines, line);
+            // Clean the array
+            int i = 0;
+            while(i < MAXLINE){
+                line[i] = '\0';
+                i++;
+            }
         }
     }
     if (min > 0)
-    { /* there was a line */
+    { /* Prints lines */
         printf("%s", longLines);
     }
     return 0;
