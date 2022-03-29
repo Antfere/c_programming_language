@@ -1,8 +1,7 @@
 // Write a function reverse that reverses the character string s.
 // Use it to write a program that reverses its input a line at a time.
-
+#define MAXLINE 1000 // maximum input line length
 #include <stdio.h>
-#define MAXLINE 1000 /* maximum input line length */
 
 void reverseAndAdd(char to[], char from[]) {
 
@@ -25,7 +24,7 @@ void reverseAndAdd(char to[], char from[]) {
 int getline(char line[], int maxline){
     int i = 0;
     char c;
-    while((i < (maxline - 1)) && (((c = getchar())!=EOF) && (c != '\n'))){
+    while((i+1 < (maxline)) && (((c = getchar())!=EOF) && (c != '\n'))){
         line[i] = c;
         i++;
     }

@@ -33,7 +33,7 @@ int main() {
     scanf("%f", &temp);
     printf("\nEnter either 'celsius' or 'fahrenheit' as the unit to convert towards: ");
 
-    scanf("%11s", &unit);
+    scanf("%s", unit);
 
     printf("\n%f is equal to %.3f degrees %s", temp, tempConverter(temp, unit), unit);
 
