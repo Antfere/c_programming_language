@@ -9,92 +9,119 @@
 #include <stdlib.h>
 #define MAX 1000
 
-void detabAndPrint(char from[], char to[], unsigned int tabWidth, char exitChar, int charLen){
+void detabAndPrint(char from[], char to[], unsigned int tabWidth, int outputLen){
+    // i is the counter for the input length, c is the counter for the output length
     int i = 0;
+    int c = 0;
     // Keeps track of the offset required to fit the added characters replacing tab
     // And also for the escape backslash
-    int offset = 0;
-    int c = 0;
     int escape = 0;
-    while(from[i] != exitChar){
+    while(c < outputLen){
         if (escape == 1){
-            if (from[i] == exitChar){
-                to[i + offset] = from[i];
+            if (from[i] == '\t'){
+                c--;
+                to[c] = '\t';
             }
-            else if (from[i] == '\\'){
-                to[i + offset] = from[i];
-            }
-            // This else is not really neccessary, but somewhat more user friendly
+            // Handles every other character, and keeps the backslash
+            // Not really neccessary as you could just escape the backslash
+            // But that would be cumbersome
+            // Although this has the added of making '\\r' the same as '\r' for example
             else{
-                to[i + offset - 1] = from[i - 1];
-                to[i + offset] = from[i];
+                to[c-1] = from[i-1];
+                to[c] = from[i];
             }
+            escape = 0;
         }
         else if (from[i] == '\\'){
             escape = 1;
         }
         else if (from[i] == '\t'){
-            for(unsigned int o = 0; o < tabWidth; o++){
-                to[i + o + offset] = ' ';
+            unsigned int o = 0;
+            for(o = o; o < tabWidth; o++){
+                to[c + o] = ' ';
             }
-            offset = offset + tabWidth;
+            c = c + tabWidth - 1;
         }
         else {
-            to[i + offset] = from[i];
+            to[c] = from[i];
         }
         i++;
-    }
-    while(c < charLen){
-        printf("%c", to[c]);
         c++;
     }
+    printf("%s", to);
+    printf("Len: %d", c);
 }
 
 int countChars(unsigned int tabWidth, char exitChar, char text[]){
     char c;
     int i = 0;
     int offset = 0;
-    int escape = 0; 
-    while(((c=getchar()) != EOF) && (c != exitChar)){
-        if (escape == 1){
-            if (c != exitChar || c != '\\'){
-                text[i] = c;
-                i++;
+    int escape = 0;
+    // The char array text[] is a one to one copy of everything from the stdin stream
+    // The variable i is the length of the final text with all the extra spaces added
+    // Escape characters and behaviour is also handled, given the proper length and original text
+    // Offset gives the amount of added lenght to the output from converting tabs to spaces 
+    while(((c=getchar()) != EOF)){
+        if (c == exitChar && escape == 0){
+            return (i+offset);
+        }
+        else if (escape == 1){
+            if (c == exitChar){
+                i--;
+                text[i] = exitChar;
             }
-            text[i] = c;
+            else if (c == '\t'){
+                i--;
+                text[i] = '\\';
+                i++;
+                text[i] = '\t';
+            }
+            else if (c == '\\'){
+                i--;
+                text[i] = '\\';
+            }
+            else {
+                text[i-1] = '\\';
+                text[i] = c;
+            }
             escape = 0;
         }
         else if (c == '\t'){
             text[i] = c;
             offset = offset + tabWidth;
-            i++;
         }
         else if (c == '\\'){
             escape = 1;
-            i++;
         }
         else {
             text[i] = c;
-            i++;
         }
+        i++;
     }
-    text[i+1] = '!';
-    return (i+offset+1);
+    return (i+offset);
 }
 
 int main(){
     unsigned int tabWidth = 4; // Default 4 naturally, only positive values
-    char exitChar;
+    char exitChar = '~';
+
+    // Fseek to move the stdin pointer away from the inputted values
+    // Max 1 digit and 1 char for the two values
     printf("Enter tab width in spaces (Default: 4): ");
-    scanf("%u", &tabWidth);
-    fseek(stdin, 2, SEEK_CUR);
-    printf("Enter exit character (Can be escaped with '\\' prefix): ");
-    scanf("%c", &exitChar);
-    fseek(stdin, 2, SEEK_CUR);
+    scanf("%1u", &tabWidth);
+    fseek(stdin, 1, SEEK_CUR);
+    printf("Default exit character is '~', \n");
+    printf("Enter custom exit character (Can be escaped with '\\' prefix): ");
+    scanf("%1c", &exitChar);
+    fseek(stdin, 1, SEEK_CUR);
+    // Both seeks "clear" out the stdin stream
+    
     char *text = calloc(MAX, 1);
-    int charLen = countChars(tabWidth, exitChar, text);
-    // Allocate memory, plus one for good measure 
-    char *detabbed = calloc((charLen), 1);
-    detabAndPrint(text, detabbed, tabWidth, exitChar, charLen);
+    // Find the size of the new text while also setting up the old one properly to prepare for detabbing
+    // Add one for good measure
+    int outputLen = countChars(tabWidth, exitChar, text) + 1;
+    // Allocate memory for the new text
+    char *detabbed = calloc((outputLen), 1);
+    detabAndPrint(text, detabbed, tabWidth, outputLen);
     return 0;
 }
