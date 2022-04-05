@@ -2,6 +2,258 @@
 // Don’t forget to handle quoted strings and character constants properly.
 // C comments don’t nest.
 
+// Inline comment
+
+// // "Nested" comment
+
+/* multi line comment */
+
+#define example 1 // Comment after compiler directive
+
+/*
+int main(){
+
+}
+
+// Multi multi line comments
+*/
+
+/*
+
+*/
+/*
+
+*/
+/*
+
+*/
+
+int main(){
+  //**********// 
+    int i = 0;//
+  //**********//
+  char str[] = "//";
+  char str2[] = "/*   */";
+  char c = 'g';
+}
+
+// This is an example exception directive
+
+#pragma comments enable// Do not delete
+// I want this comment to stay
+#pragma comments disable// Delete
+/*
+Delete
+*/
+#pragma comments enable/*
+Do not delete
+
+*/
+/* 
+This one should also stay
+*/
+#pragma comments disable/* Delete */
+
+// #pragma comments enable
+// #pragma comments disable
+
+/*
+#pragma comments enable
+// Should be deleted
+#pragma comments disable
+*/
+
+// Nested quotations/directives/comments:
+
+"
+/* */
+#pragma comments enable // Comment
+#pragma comments disable // Delete
+/* */
+"
+
+// #pragma comments enable
+// // Comment
+// /* Comment */
+// #pragma comments disable
+
+     #pragma      comments       enable // This is a directive
+
+// This comment will stay
+#pragma      comments     disable
+
+
+#pragma comments enable
+"// Comment"
+#pragma comments disable
+"// Comment"
+ // Delete
+
+ #pragma comments
+ #pragma comments disabl
+ #pragma comments
+
+ #pragma com//ents enable
+ #pragma com"ents enable"
+ #pragma "comments enable"
+ #pragma 'comments enable'
+"#pragma 'comments enable'"
+
+ #pragma comments enable
+
+"\" // "
+
+// Past program as extra dummy input with comments kept
+// *************************************************************************************************
+
+
+// Write a program entab that replaces strings of blanks by
+// the minimum number of tabs and blanks to achieve the same spacing. Use
+// the same tab stops as for detab. When either a tab or a single blank would
+// suffice to reach a tab stop, which should be given preference?
+
+// In the case of multiple tab stops worth of blanks, the program should first convert from left to right
+// The applicable amount of tabs, then finish up with spaces, to properly emulate a conversion between the two
+// Assuming the user was trying to emulate tabs with spaces before running it through this program to finalize the process
+
+// Same tab width selection as detab
+// Same exit character setup
+// Same split counters between old and new, except now the new text will shrink is bytes
+// Similar setup by generating original text first, then counting, then processing and printing
+
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX 1000
+
+void entabAndPrint(char from[], char to[], int tabWidth, int outputLen){
+    int i = 0;
+    int c = 0;
+    int spaces = 0;
+    while (c < outputLen){
+        if (from[i] == ' '){
+            for(int s = 0; s < tabWidth; s++){
+                if (from[i + s] == ' '){
+                    spaces++;
+                    if (spaces == tabWidth){
+                        to[c] = '\t';
+                        i = i + tabWidth - 1;
+                        spaces = 0;
+                    }
+                }
+                else {
+                    spaces = 0;
+                    to[c] = from[i];
+                    break;
+                }
+            }
+        }
+        else {
+            to[c] = from[i];
+        }
+        i++;
+        c++;
+    }
+    printf("%s", to);
+    printf("Len: %d", c);
+}
+
+int countChars(int tabWidth, char exitChar, char text[]){
+    char c;
+    int i = 0;
+    int spaces = 0;
+    int offset = 0;
+    int escape = 0;
+
+    while(((c=getchar()) != EOF)){
+        if (c == exitChar && escape == 0){
+            for (int s = 0; s < i; s++){
+                if (text[s] == ' '){
+                    spaces = spaces + 1;
+                    if (spaces == tabWidth){
+                        offset = offset + tabWidth - 1;
+                        spaces = 0;
+                    }
+                }
+                else{
+                    spaces = 0;
+                }
+            }
+            return (i-offset);
+        }
+        else if (escape == 1){
+            if (c == exitChar){
+                i--;
+                text[i] = exitChar;
+            }
+            else if (c == '\\'){
+                i--;
+                text[i] = '\\';
+            }
+            else {
+                text[i-1] = '\\';
+                text[i] = c;
+            }
+            escape = 0;
+        }
+        else if (c == '\\'){
+            escape = 1;
+        }
+        else {
+            text[i] = c;
+        }
+        i++;
+    }
+
+    // Just in case
+    for (int s = 0; s < i; s++){
+        if (text[s] == ' '){
+            spaces = spaces + 1;
+            if (spaces == tabWidth){
+                offset = offset + tabWidth - 1;
+            }
+        }
+        else{
+            spaces = 0;
+        }
+    }
+    return (i-offset);
+}
+
+int main(){
+    unsigned int tabWidth = 4; // Default 4 naturally, only positive values
+    char exitChar = '~';
+
+    // Fseek to move the stdin pointer away from the inputted values
+    // Max 1 digit and 1 char for the two values
+    printf("Enter tab width in spaces (Default: 4): ");
+    scanf("%1u", &tabWidth);
+    fseek(stdin, 1, SEEK_CUR);
+    printf("Default exit character is '~', \n");
+    printf("Enter custom exit character (Can be escaped with '\\' prefix): ");
+    scanf("%1c", &exitChar);
+    fseek(stdin, 1, SEEK_CUR);
+    // Both seeks "clear" out the stdin stream
+    
+    char *text = calloc(MAX, 1);
+    // Find the size of the new text while also setting up the old one properly to prepare for detabbing
+    // Add one for good measure
+    int outputLen = countChars(tabWidth, exitChar, text) + 1;
+    // Allocate memory for the new text
+    char *detabbed = calloc((outputLen), 1);
+    entabAndPrint(text, detabbed, tabWidth, outputLen);
+    return 0;
+}
+
+// The comment program in here aswell:
+// ****************************************************************
+
+// Self referenced program:
+#pragma comments disable
+
+// Write a program to remove all comments from a C program.
+// Don’t forget to handle quoted strings and character constants properly.
+// C comments don’t nest.
+
 // It needs to recognize double forward slashes
 // And forward slashes with asterisks even after dummy text in the same line
 // It can work similar to the look ahead system of the entab and detab
@@ -29,7 +281,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 int main(){
     int comment = 0; // Buffer gets cleared and bit is flipped when encountered
@@ -58,13 +309,11 @@ int main(){
                         break;
                     }
 
-                    else if ((c == '\t' || c == ' ') && (commentsEnable[i - 1] == ' ')){
-
-                        buffer[i + extendedSpacesCounter] = c;
-                        // It is likely costly to realloc every blank/tab character but it saves memory and unlike quotations shouldin't be too big of a deal
-                        buffer = realloc(buffer, (extendedSpacesCounter + 22)*sizeof(char));
-
+                    if ((c == '\t' || c == ' ') && (commentsEnable[i - 1] == ' ')){
                         extendedSpacesCounter++;
+                        // It is likely costly to realloc every blank/tab character but it saves memory and unlike quotations shouldin't be too big of a deal
+                        buffer = realloc(buffer, (extendedSpacesCounter + 22));
+                        buffer[i + extendedSpacesCounter] = c;
 
                         // Keeps the directive counter the same if blanks/tabs are encountered while already on predefined blank
                         // Allows an infinite amount of blanks/tabs between words in the directive
@@ -72,7 +321,7 @@ int main(){
                         // I would rather mess around with dynamically allocated memory
                         i--;
                     }
-                    else if (c == commentsEnable[i]){
+                    else if (c == commentsEnable[i + extendedSpacesCounter]){
                         buffer[i + extendedSpacesCounter] = c;
                     }
                     // Mismatch case
@@ -97,9 +346,6 @@ int main(){
                 // If the increment reaches its end it means the directive bool is flipped
                 // And buffer is copied
                 if (i == 22){
-                    // Realoc forgets to add the null terminator?
-                    // Or is it something else?
-                    buffer[i + extendedSpacesCounter] = '\0';
                     fputs(buffer, CProgramCleaned);
                     directive = 1;
                 }
@@ -115,17 +361,17 @@ int main(){
                     c = fgetc(CProgram);
                     
                     if ((c == '\t' || c == ' ') && (commentsDisable[i - 1] == ' ')){
-
-                        // It is likely costly to realloc every blank/tab character but it saves memory and unlike quotations shouldin't be too big of a deal
-                        buffer = realloc(buffer, (extendedSpacesCounter + 23)*sizeof(char));
-                        buffer[i + extendedSpacesCounter] = c;
                         extendedSpacesCounter++;
+                        // It is likely costly to realloc every blank/tab character but it saves memory and unlike quotations shouldin't be too big of a deal
+                        buffer = realloc(buffer, (extendedSpacesCounter + 23));
+                        buffer[i + extendedSpacesCounter] = c;
+
 
                         // Keeps the directive counter the same if blanks/tabs are encountered while already on predefined blank
                         // Allows an infinite amount of blanks/tabs between words in the directive
                         i--;
                     }
-                    else if (c == commentsDisable[i]){
+                    else if (c == commentsDisable[i + extendedSpacesCounter]){
                         buffer[i + extendedSpacesCounter] = c;
                     }
                     // Mismatch case
@@ -139,9 +385,6 @@ int main(){
                 }
                 // If the increment reaches its end it means the directive bool is flipped
                 if (i == 23){
-                    // Realoc forgets to add the null terminator?
-                    // Or is it something else?
-                    buffer[i + extendedSpacesCounter] = '\0';
                     fputs(buffer, CProgramCleaned);
                     directive = 0;
                 }
@@ -164,8 +407,6 @@ int main(){
                 }
                 if (c == '\n'){
                     // Puts the newline
-                    // This will create gaps in the program...
-                    // Further motivation to make a whitespace removing program to pipe into
                     fputc(c, CProgramCleaned);
                 }
             }
@@ -190,17 +431,11 @@ int main(){
             // Case where it isin't an actual comment
             // Buffer is unnescessary as shown in quotation example below as it is only two characters
             else{
-                if (c == EOF){
-                    fputs(buffer, CProgramCleaned);
-                    free(buffer);
-                }
-                else{
-                    buffer[1] = c;
-                    // Write buffer to file
-                    fputs(buffer, CProgramCleaned);
-                    // Free buffer
-                    free(buffer);
-                }
+                buffer[1] = c;
+                // Write buffer to file
+                fputs(buffer, CProgramCleaned);
+                // Free buffer
+                free(buffer);
             }
         }
         else if (c == '\''){
@@ -272,3 +507,5 @@ int main(){
     }
     return 0;
 }
+
+"
